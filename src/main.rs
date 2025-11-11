@@ -1,0 +1,34 @@
+#![no_std]
+#![no_main]
+
+#[macro_use]
+mod console;
+mod lang_items;
+mod sbi;
+
+use core::arch::global_asm;
+global_asm!(include_str!("entry.asm"));
+
+#[unsafe(no_mangle)]
+pub fn rust_main() -> ! {
+    clear_bss();
+    println!("Hello, wyy!");
+    ERROR!("Hello, wyy!");
+    WARN!("Hello, wyy!");
+    INFO!("Hello, wyy!");
+    DEBUG!("Hello, wyy!");
+    TRACE!("Hello, wyy!");
+    panic!("Shutdown machine!");
+}
+
+fn clear_bss() {
+    unsafe extern "C" {
+        fn sbss();
+        fn ebss();
+    }
+    (sbss as usize..ebss as usize).for_each(|a| {
+        unsafe {
+            (a as *mut u8).write_volatile(0)
+        }
+    });
+}
